@@ -9,19 +9,61 @@ import 'widgets/offline_status_bar.dart';
 import 'widgets/clash_warning_banner.dart';
 import 'widgets/slot_editor_dialog.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final storage = await StorageService.initialize();
-  final controller = TimetableController(storage);
-  await controller.initialize();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter Uncaught Error: ${details.exception}');
+  };
 
-  runApp(TimetableApp(controller: controller));
+  runApp(const TimetableApp());
 }
 
-class TimetableApp extends StatelessWidget {
-  final TimetableController controller;
+class TimetableApp extends StatefulWidget {
+  const TimetableApp({super.key});
 
-  const TimetableApp({super.key, required this.controller});
+  @override
+  State<TimetableApp> createState() => _TimetableAppState();
+}
+
+class _TimetableAppState extends State<TimetableApp> {
+  TimetableController? _controller;
+  String? _initError;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    setState(() {
+      _isLoading = true;
+      _initError = null;
+    });
+
+    try {
+      final storage = await StorageService.initialize();
+      final controller = TimetableController(storage);
+      await controller.initialize();
+
+      if (mounted) {
+        setState(() {
+          _controller = controller;
+          _isLoading = false;
+        });
+      }
+    } catch (e, stack) {
+      debugPrint('Fatal init error: $e\n$stack');
+      if (mounted) {
+        setState(() {
+          _initError = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +80,89 @@ class TimetableApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: TimetableHomeScreen(controller: controller),
+      home: _buildHome(),
     );
+  }
+
+  Widget _buildHome() {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.calendar_month_rounded,
+                  size: 48,
+                  color: Color(0xFF1E88E5),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Timetable Clash Detector',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Loading timetable & collision engine...',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 24),
+              const SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(strokeWidth: 2.5),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_initError != null || _controller == null) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text(
+                  'Initialization Issue',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _initError ?? 'Unknown error during startup',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: _bootstrap,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry Startup'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return TimetableHomeScreen(controller: _controller!);
   }
 }
 
@@ -85,20 +208,24 @@ class _TimetableHomeScreenState extends State<TimetableHomeScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Timetable Clash Detector',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    Text(
-                      'Real-time conflict detection & offline-first sync',
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Timetable Clash Detector',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'Real-time collision detection',
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 12),
                 if (clashCount > 0)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -112,7 +239,7 @@ class _TimetableHomeScreenState extends State<TimetableHomeScreen> {
                         const Icon(Icons.warning, color: Colors.white, size: 12),
                         const SizedBox(width: 4),
                         Text(
-                          '$clashCount Clash${clashCount > 1 ? 'es' : ''}',
+                          '$clashCount',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
