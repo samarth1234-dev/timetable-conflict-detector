@@ -44,5 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Node modules
+node_modules/
+npm-debug.log*
+
+
 # Widget Preview related
 .widget_preview/
