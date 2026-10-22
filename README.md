@@ -245,11 +245,16 @@ timetable_conflict_detector/
 │   └── main.dart                      # App entry point, instant native rendering, and tab shell
 ├── test/
 │   └── widget_test.dart               # Complete test suite for interval logic & offline WAL
-├── android/                           # Native Android configuration (MultiDex enabled)
-├── server.js                          # Express sync backend (for optional Render deployment)
-├── package.json                       # Node.js dependencies for backend
-├── render.yaml                        # 1-click Render Blueprint spec
-└── Dockerfile                         # Container spec for cloud deployment
+├── backend/                           # Node.js Express sync server (packaged in same repo)
+│   ├── server.js                      # Express bulk sync and REST API
+│   ├── package.json                   # Dependencies (express, cors, uuid)
+│   ├── Dockerfile                     # Container spec for cloud deployment
+│   ├── render.yaml                    # 1-click Render blueprint spec
+│   └── README.md                      # Backend API documentation
+├── server.js                          # Root Express sync server (for zero-config cloud deploy)
+├── package.json                       # Root Node.js dependencies
+├── render.yaml                        # Root 1-click Render Blueprint spec
+└── Dockerfile                         # Root Container spec
 ```
 
 ---
@@ -258,10 +263,10 @@ timetable_conflict_detector/
 
 > **Note**: The mobile APK runs 100% standalone and executes all offline logging and sync-on-reconnect reconciliation using its built-in engine. External server deployment is completely optional.
 
-If you wish to deploy the real-time cloud backend to Render:
+Since the backend is bundled directly inside this repository, you can deploy it to Render in 1 click:
 
 1. Click the 1-click Render blueprint link:  
-   👉 **[Deploy to Render (1-Click)](https://render.com/deploy?repo=https://github.com/samarth1234-dev/timetable-backend)**
+   👉 **[Deploy to Render (1-Click)](https://render.com/deploy?repo=https://github.com/samarth1234-dev/timetable-conflict-detector)**
 2. Render will automatically parse [`render.yaml`](render.yaml) and start the Node.js service:
    - **Build Command**: `npm install`
    - **Start Command**: `node server.js`
