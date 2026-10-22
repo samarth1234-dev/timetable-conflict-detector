@@ -52,14 +52,13 @@
 
 ---
 
-## 📲 Download Pre-Built Android APKs
+## 📲 Download Pre-Built Android APK
 
-Pre-compiled, release-signed APKs are available directly on GitHub Releases:
+Pre-compiled, release-signed APK is available directly on GitHub Releases:
 
 | Release Asset | File Size | Description | Download Link |
 | :--- | :---: | :--- | :---: |
-| **Universal Release APK** | **56.5 MB** | ⭐ **Recommended**. Compatible with all Android phones & emulators (Android 8.0 - 15.0). Crash-proof startup with instant native rendering. | [⬇️ Download Full APK](https://github.com/samarth1234-dev/timetable-conflict-detector/releases/download/v1.0.0/Timetable_Clash_Detector_Full.apk) |
-| **WhatsApp Light APK** | **18.7 MB** | Optimized for ARM64-v8a devices. Lightweight file size ideal for fast sharing over WhatsApp documents. | [⬇️ Download Light APK](https://github.com/samarth1234-dev/timetable-conflict-detector/releases/download/v1.0.0/Timetable_Clash_Detector_WhatsApp_Light.apk) |
+| **Universal Release APK** | **56.5 MB** | Compatible with all Android phones & emulators (Android 8.0 - 15.0). Crash-proof startup with instant native rendering. | [⬇️ Download Full APK](https://github.com/samarth1234-dev/timetable-conflict-detector/releases/download/v1.0.0/Timetable_Clash_Detector_Full.apk) |
 
 > **GitHub Release Tag**: [v1.0.0 Release Notes & Assets](https://github.com/samarth1234-dev/timetable-conflict-detector/releases/tag/v1.0.0)
 
